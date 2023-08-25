@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "build": "npx esbuild --bundle src/index.ts --minify --platform=node --outdir=./build",
+    "compile": "tsc",
+    "dev": "tsc -w",
+    "test": "npm run compile && jest --detectOpenHandles",
+    "test:coverage": "npm run compile && jest --detectOpenHandles --coverage=true"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.4",
+    "@types/xml": "^1.0.8",
+    "esbuild": "^0.19.2",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1"
+  }
+}
