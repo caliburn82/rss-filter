@@ -26,9 +26,22 @@ function feedObjectToXml(feedObject: any): string {
     .filter((item: any) => item.title.toLowerCase().includes(rss.keyWords.toLowerCase())) // filter by keywords
     .map((item: any) => {
       const itemHeaders = Object.entries(item)
-        .filter(([key, value]) => typeof value === 'string')
+        // .filter(([key, value]) => typeof value === 'string')
         .map(([key, value]) => {
-          return `    <${key}>${value}</${key}>`;
+          if (typeof value === 'string') {
+            return `    <${key}>${value}</${key}>`;
+          }
+
+          // value to html attributes
+          if (typeof value === 'object') {
+            const attributes = Object.entries({...value})
+              .map(([key, value]) => `${key}="${value}"`)
+              .join(' ');
+
+            return `    <${key} ${attributes} />`;
+          }
+
+          return `<!-- unknown: ${key} - ${typeof value}: ${JSON.stringify(value)} -->`;
         });
       return `  <item>${itemHeaders.join('\n')}</item>`;
     });
