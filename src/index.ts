@@ -44,9 +44,9 @@ function feedObjectToXml(feedObject: any): string {
           if (type === 'object' && Array.isArray(value)) type = 'array';
           formatters.hasOwnProperty(type) || (type = 'default');
 
-          return `\t\t\t\t${formatters[type](key, value)}`;
+          return `    ${formatters[type](key, value)}`;
         });
-      return `<item>\n${itemHeaders.join('\n')}\n\t\t</item>`;
+      return `<item>\n${itemHeaders.join('\n')}\n  </item>`;
     });
 
   const headers = Object.entries(feedObject)
@@ -55,10 +55,10 @@ function feedObjectToXml(feedObject: any): string {
 
   return '<?xml version="1.0" encoding="UTF-8"?>' +
     '<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:crunchyroll="http://www.crunchyroll.com/rss">\n' +
-    '\t<channel>\n' +
-    `\t\t${headers.join('\n')}\n` +
-    `\t\t${items.join('\n')}\n` +
-    '\t</channel>\n' +
+    ' <channel>\n' +
+    `  ${headers.join('\n')}\n` +
+    `  ${items.join('\n')}\n` +
+    ' </channel>\n' +
     '</rss>';
 }
 
