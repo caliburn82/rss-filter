@@ -1,8 +1,5 @@
 import { Response, SIObject } from "./types/common";
 import { rss } from "./config";
-import Parser from 'rss-parser';
-
-const parser = new Parser();
 
 const blacklist = [
   'content-encoding',
@@ -17,57 +14,41 @@ async function getFeedContent() {
   });
 
   const body = await response.text();
-  const result = await parser.parseString(body);
-  return {result, headers};
+  return {body, headers};
 }
 
-const formatters: SIObject<Function> = {
-  string: (key: string, value: string) => `<${key}>${value}</${key}>`,
-  object: (key: string, value: SIObject<string>) => {
-    const attributes = Object.entries({...value})
-      .map(([key, value]) => `${key}="${value}"`)
-      .join(' ');
+function filterXml(xmlData: string): string {
+  const xmldom = require('xmldom');
+  const xpath = require('xpath');
 
-    return `<${key} ${attributes} />`;
-  },
-  array: (key: string, value: any[]) => `<${key}>${value.join(', ')}</${key}>`,
-  default: (key: string, value: any) => `<!-- unknown: ${key} - ${typeof value}: ${JSON.stringify(value)} -->`,
-};
+  const parser = new xmldom.DOMParser();
+  const serializer = new xmldom.XMLSerializer();
 
-function feedObjectToXml(feedObject: any): string {
-  const items = feedObject.items
-    .filter((item: any) => item.title.toLowerCase().includes(rss.keyWords.toLowerCase())) // filter by keywords
-    .map((item: any) => {
-      const itemHeaders = Object.entries(item)
-        .map(([key, value]) => {
-          let type: string = typeof value;
-          if (type === 'object' && Array.isArray(value)) type = 'array';
-          formatters.hasOwnProperty(type) || (type = 'default');
+  const root = parser.parseFromString(xmlData, 'text/xml');
+  const items = xpath.select('//item', root)
 
-          return `    ${formatters[type](key, value)}`;
-        });
-      return `<item>\n${itemHeaders.join('\n')}\n  </item>`;
+  items.forEach((item: any) => {
+    const title = item.getElementsByTagName('title')[0].textContent;
+    const description = item.getElementsByTagName('description')[0].textContent;
+
+    const isMatch = rss.keyWords.some((keyWord) => {
+      return title.includes(keyWord) || description.includes(keyWord);
     });
 
-  const headers = Object.entries(feedObject)
-    .filter(([key]) => key !== 'items')
-    .map(([key, value]) => formatters.string(key, value));
+    if (!isMatch) {
+      root.documentElement.removeChild(item);
+    }
+  });
 
-  return '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:crunchyroll="http://www.crunchyroll.com/rss">\n' +
-    ' <channel>\n' +
-    `  ${headers.join('\n')}\n` +
-    `  ${items.join('\n')}\n` +
-    ' </channel>\n' +
-    '</rss>';
+  return serializer.serializeToString(root);
 }
 
 export async function handler(): Promise<Response> {
-  const {result, headers} = await getFeedContent();
-  const body = feedObjectToXml(result);
+  const {body, headers} = await getFeedContent();
+  const filteredXml = filterXml(body);
 
   return {
     statusCode: 200,
-    body, headers
+    body: filteredXml, headers
   };
 }
