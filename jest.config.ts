@@ -24,4 +24,5 @@ export default {
   testEnvironment: 'node',
   testRegex: '(\\/test\\/|.*)(test|spec)\\.[jt]sx?$',
   verbose: true,
+  setupFiles: ["<rootDir>/test/jest.setup.ts"],
 };
