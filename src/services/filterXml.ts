@@ -15,9 +15,7 @@ function removeDuplicates(root: Document) {
   logger.info('Removing duplicates');
   // remove all but first and last duplicated items from root
   Object.entries(knownItems).forEach(([prefix, items]) => {
-    if (items.length <= 2) {
-      return;
-    }
+    if (items.length <= 2) return;
 
     logger.info('Removing %d items with prefix "%s"', items.length - 2, prefix);
     items.slice(1, items.length - 1)
