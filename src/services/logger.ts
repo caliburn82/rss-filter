@@ -42,4 +42,5 @@ export default {
   error: (...args: any[]) => logger.error(format(...args)),
   info: (...args: any[]) => logger.info(format(...args)),
   warn: (...args: any[]) => logger.warn(format(...args)),
+  silly: (...args: any[]) => logger.silly(format(...args)),
 };

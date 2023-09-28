@@ -14,11 +14,11 @@ it('still works', async () => {
     const root = parser.parseFromString(response.body, 'text/xml');
     const items = xpath.select('//item', root)
 
+    logger.silent = false;
+    logger.silly('Found %d items', items.length)
     items.forEach((item: any) => {
-      logger.silent = false;
       const title = item.getElementsByTagName('title')[0].textContent;
-
-      logger.info('Title found:', title);
+      logger.silly('Title found:', title);
     });
   });
 });
