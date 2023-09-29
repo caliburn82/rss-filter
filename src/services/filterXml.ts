@@ -43,7 +43,7 @@ function filterNode(item: any, root: Document) {
   logger.debug('Checking item: "%s"', title)
 
   // remove items that don't match our keywords
-  const isMatch = RSS.KEY_WORDS.some((keyWord) => title.includes(keyWord));
+  const isMatch = RSS.KEY_WORDS.some((keyWord) => title.toLowerCase().includes(keyWord.toLowerCase()));
   if (!isMatch) {
     logger.debug('Removed - does not match keywords:', RSS.KEY_WORDS.join(', '));
     root.documentElement.removeChild(item);
