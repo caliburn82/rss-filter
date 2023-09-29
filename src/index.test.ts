@@ -1,7 +1,11 @@
 import { handler } from "./index";
+import * as  getFeedContent from './services/getFeedContent';
 import logger from './services/logger';
 
 logger.silent = true;
+
+const xml = require('fs').readFileSync('./test/data/rss.xml', 'utf8');
+jest.spyOn(getFeedContent, 'default').mockResolvedValue({ body: xml, headers: {} });
 
 it('still works', async () => {
   await handler().then((response) => {

@@ -12,7 +12,22 @@ function removeDuplicates(root: Document) {
     return
   }
 
+  // sort items by date
+  Object.entries(knownItems).forEach(([prefix, items]) => {
+    logger.info('Sorting %d items with prefix "%s"', items.length, prefix);
+    items.sort((a, b) => {
+      const titleA = a.getElementsByTagName('title')[0].textContent;
+      const titleB = b.getElementsByTagName('title')[0].textContent;
+
+      const dateA = a.getElementsByTagName('pubDate')[0].textContent;
+      const dateB = b.getElementsByTagName('pubDate')[0].textContent;
+
+      return dateA.localeCompare(dateB) || titleA.localeCompare(titleB)
+    })
+  });
+
   logger.info('Removing duplicates');
+
   // remove all but first and last duplicated items from root
   Object.entries(knownItems).forEach(([prefix, items]) => {
     if (items.length <= 2) return;
